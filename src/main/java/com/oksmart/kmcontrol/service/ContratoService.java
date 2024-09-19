@@ -18,16 +18,26 @@ public class ContratoService {
     @Autowired
     private ContratoRepository contratoRepository;
 
-
-    //Método para listar todos os contratos
+    // Método para listar todos os contratos
     public List<ContratoDTO> listarTodos() {
         return contratoRepository.findAll().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
-    //Método para criar um contrato
+    // Método para criar um contrato
     public ContratoDTO criarContrato(ContratoCreateDTO contratoCreateDTO) {
+        // Verificar se já existe um contrato com a mesma placa ou número de contrato
+        boolean exists = contratoRepository.findAll().stream().anyMatch(c ->
+                c.getPlaca().equals(contratoCreateDTO.getPlaca()) ||
+                        c.getNumeroContrato().equals(contratoCreateDTO.getNumeroContrato())
+        );
+
+        if (exists) {
+            throw new IllegalArgumentException("Já existe um contrato com " +
+                    "a mesma placa ou número de contrato.");
+        }
+
         ContratoModel contrato = new ContratoModel();
         contrato.setCondutorPrincipal(contratoCreateDTO.getCondutorPrincipal());
         contrato.setCondutorResponsavel(contratoCreateDTO.getCondutorResponsavel());
@@ -43,48 +53,35 @@ public class ContratoService {
         // Calcula a quantidade de meses entre dataRegistro e dataAtual
         long quantiaMeses = ChronoUnit.MONTHS.between(dataRegistro, dataAtual);
         contrato.setQuantiaMeses((int) quantiaMeses);
-        // Armazena o valor no campo quantiaMeses
 
         // Calcula kmMediaMensal
         int mesesParaCalculo = quantiaMeses == 0 ? 1 : (int) quantiaMeses;
-        // Considera 1 se quantiaMeses for 0
         double kmMediaMensal = (double) contratoCreateDTO.getKmAtual() / mesesParaCalculo;
-        // Calcula kmMediaMensal
         contrato.setKmMediaMensal((long) kmMediaMensal);
-        // Armazena no campo kmMediaMensal
 
         // Calcula contadorRevisao
         int contadorRevisao = contratoCreateDTO.getKmAtual() - contratoCreateDTO.getKmInicial();
         contrato.setContadorRevisao(contadorRevisao);
-        // Armazena no campo contadorRevisao
 
         // Verifica se deve fazer revisão
         contrato.setFazerRevisao(contadorRevisao > 10000);
-        // Se contadorRevisao > 10000, fazerRevisao é true
 
         // Calcula kmIdeal
         int mesesParaKmIdeal = quantiaMeses == 0 ? 1 : (int) quantiaMeses;
-        // Considera 1 se quantiaMeses for 0
         int kmIdeal = contratoCreateDTO.getFranquiaKm() * mesesParaKmIdeal;
-        // Multiplica franquiaKm pela quantidade de meses
         contrato.setKmIdeal(kmIdeal);
-        // Armazena no campo kmIdeal
 
         // Calcula acumuladoMes
         long acumuladoMes = kmIdeal - contratoCreateDTO.getKmAtual();
-        // Subtrai kmAtual de kmIdeal
         contrato.setAcumuladoMes(acumuladoMes);
-        // Armazena no campo acumuladoMes
 
         // Define kmExcedido com base no acumuladoMes
         contrato.setKmExcedido(acumuladoMes < 0);
-        // Se acumuladoMes for menor que 0, kmExcedido é true, caso contrário, false
 
         // Calcula saldoKm
         double saldoKm = (contratoCreateDTO.getValorAluguel()
-                / contratoCreateDTO.getFranquiaKm()) * acumuladoMes; // Saldo calculado
+                / contratoCreateDTO.getFranquiaKm()) * acumuladoMes;
         contrato.setSaldoKm(saldoKm);
-        // Armazena no campo saldoKm
 
         contrato.setDiarias(contratoCreateDTO.getDiarias());
         contrato.setFranquiaKm(contratoCreateDTO.getFranquiaKm());
@@ -98,15 +95,13 @@ public class ContratoService {
         contrato.setPlaca(contratoCreateDTO.getPlaca());
         contrato.setValorAluguel(contratoCreateDTO.getValorAluguel());
 
-        // Define observacoes
+        // Define observações
         StringBuilder observacoes = new StringBuilder();
 
-        // Verifica se deve fazer revisão
         if (contrato.isFazerRevisao()) {
             observacoes.append("Necessário marcar a revisão");
         }
 
-        // Verifica se kmExcedido
         if (contrato.isKmExcedido()) {
             if (observacoes.length() > 0) {
                 observacoes.append(" | ");
@@ -125,7 +120,7 @@ public class ContratoService {
         return convertToDTO(savedContrato);
     }
 
-    //Método para conversões DTO
+    // Método para conversões DTO
     private ContratoDTO convertToDTO(ContratoModel contrato) {
         return new ContratoDTO(
                 contrato.getId(),
@@ -158,7 +153,7 @@ public class ContratoService {
         );
     }
 
-    //Métodos para conversão para Model
+    // Métodos para conversão para Model
     private ContratoModel convertToModel(ContratoDTO contratoDTO) {
         return new ContratoModel(
                 contratoDTO.getId(),
@@ -189,5 +184,15 @@ public class ContratoService {
                 contratoDTO.getContadorRevisao(),
                 contratoDTO.getObservacoes()
         );
+    }
+
+    // Método para deletar um contrato pelo número do contrato
+    public void deletarContrato(String numeroContrato) {
+        ContratoModel contrato = contratoRepository.findByNumeroContrato(numeroContrato);
+        if (contrato != null) {
+            contratoRepository.delete(contrato);
+        } else {
+            throw new IllegalArgumentException("Contrato não encontrado para o número fornecido.");
+        }
     }
 }

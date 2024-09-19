@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ContratoRepository extends JpaRepository<ContratoModel, Long> {
+    ContratoModel findByNumeroContrato(String numeroContrato);
 }
