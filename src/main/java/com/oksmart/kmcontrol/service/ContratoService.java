@@ -212,17 +212,31 @@ public class ContratoService {
 
         // Verifica se o kmAtual fornecido é maior que o kmAtual do último contrato
         if (atualizarKmDTO.getKmAtual() <= ultimoContrato.getKmAtual()) {
-            throw new IllegalArgumentException("O kmAtual deve ser maior que o kmAtual do último contrato.");
+            throw new IllegalArgumentException("O Km Atual deve ser maior que: " + ultimoContrato.getKmAtual() + " KM.");
         }
 
         // Cria um novo registro com os dados fornecidos
         ContratoModel novoContrato = new ContratoModel();
         novoContrato.setPlaca(atualizarKmDTO.getPlaca());
         novoContrato.setKmAtual(atualizarKmDTO.getKmAtual());
+        novoContrato.setDataAtual(LocalDate.now()); // Define a data atual
+
+        // Replicando os dados do último contrato
         novoContrato.setCondutorPrincipal(ultimoContrato.getCondutorPrincipal());
         novoContrato.setCondutorResponsavel(ultimoContrato.getCondutorResponsavel());
-        novoContrato.setDataAtual(LocalDate.now()); // Define a data atual
-        // Adicione outros campos que deseja manter ou inicializar
+        novoContrato.setDiarias(ultimoContrato.getDiarias());
+        novoContrato.setFranquiaKm(ultimoContrato.getFranquiaKm());
+        novoContrato.setKmInicial(ultimoContrato.getKmInicial());
+        novoContrato.setLocadora(ultimoContrato.getLocadora());
+        novoContrato.setMarca(ultimoContrato.getMarca());
+        novoContrato.setModelo(ultimoContrato.getModelo());
+        novoContrato.setNumeroContrato(ultimoContrato.getNumeroContrato());
+        novoContrato.setOsCliente(ultimoContrato.getOsCliente());
+        novoContrato.setValorAluguel(ultimoContrato.getValorAluguel());
+
+        // Calcula a quantidade de meses entre dataRegistro e dataAtual
+        long quantiaMeses = ChronoUnit.MONTHS.between(ultimoContrato.getDataRegistro(), LocalDate.now());
+        novoContrato.setQuantiaMeses((int) quantiaMeses);
 
         // Salva o novo contrato no banco
         ContratoModel savedContrato = contratoRepository.save(novoContrato);
