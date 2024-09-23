@@ -1,5 +1,6 @@
 package com.oksmart.kmcontrol.controller;
 
+import com.oksmart.kmcontrol.dto.AtualizarKmDTO;
 import com.oksmart.kmcontrol.dto.ContratoCreateDTO;
 import com.oksmart.kmcontrol.dto.ContratoDTO;
 import com.oksmart.kmcontrol.dto.ContratoDeleteDTO;
@@ -33,4 +34,11 @@ public class ContratoController {
     public void deletarContrato(@RequestBody ContratoDeleteDTO contratoDeleteDTO) {
         contratoService.deletarContrato(contratoDeleteDTO.getNumeroContrato());
     }
+
+    //Endpoint para atualizar km
+    @PostMapping("/atualizar-km")
+    public ContratoDTO atualizarKm(@RequestBody AtualizarKmDTO atualizarKmDTO) {
+        return contratoService.atualizarKm(atualizarKmDTO);
+    }
+
 }

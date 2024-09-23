@@ -1,5 +1,6 @@
 package com.oksmart.kmcontrol.service;
 
+import com.oksmart.kmcontrol.dto.AtualizarKmDTO;
 import com.oksmart.kmcontrol.dto.ContratoCreateDTO;
 import com.oksmart.kmcontrol.dto.ContratoDTO;
 import com.oksmart.kmcontrol.model.ContratoModel;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -194,5 +196,36 @@ public class ContratoService {
         } else {
             throw new IllegalArgumentException("Contrato não encontrado para o número fornecido.");
         }
+    }
+
+    //Método para atualizar o km dos veículos
+    public ContratoDTO atualizarKm(AtualizarKmDTO atualizarKmDTO) {
+        // Busca todos os contratos com a placa fornecida
+        List<ContratoModel> contratos = contratoRepository.findByPlaca(atualizarKmDTO.getPlaca());
+
+        if (contratos.isEmpty()) {
+            throw new IllegalArgumentException("Contrato não encontrado para a placa fornecida.");
+        }
+
+        // Pega o último contrato (primeiro da lista após ordenação)
+        ContratoModel ultimoContrato = contratos.get(0);
+
+        // Verifica se o kmAtual fornecido é maior que o kmAtual do último contrato
+        if (atualizarKmDTO.getKmAtual() <= ultimoContrato.getKmAtual()) {
+            throw new IllegalArgumentException("O kmAtual deve ser maior que o kmAtual do último contrato.");
+        }
+
+        // Cria um novo registro com os dados fornecidos
+        ContratoModel novoContrato = new ContratoModel();
+        novoContrato.setPlaca(atualizarKmDTO.getPlaca());
+        novoContrato.setKmAtual(atualizarKmDTO.getKmAtual());
+        novoContrato.setCondutorPrincipal(ultimoContrato.getCondutorPrincipal());
+        novoContrato.setCondutorResponsavel(ultimoContrato.getCondutorResponsavel());
+        novoContrato.setDataAtual(LocalDate.now()); // Define a data atual
+        // Adicione outros campos que deseja manter ou inicializar
+
+        // Salva o novo contrato no banco
+        ContratoModel savedContrato = contratoRepository.save(novoContrato);
+        return convertToDTO(savedContrato);
     }
 }
