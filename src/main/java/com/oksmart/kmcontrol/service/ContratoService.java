@@ -8,6 +8,8 @@ import com.oksmart.kmcontrol.model.ContratoModel;
 import com.oksmart.kmcontrol.repository.ContratoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.util.Map;
+import java.util.HashMap;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -350,5 +352,15 @@ public class ContratoService {
         ContratoModel savedContrato = contratoRepository.save(novoContrato);
         return convertToDTO(savedContrato);
     }
+
+    //Método para listar registros por número de contrato.
+    public List<ContratoDTO> listarUltimosContratos() {
+        List<ContratoModel> ultimosContratos = contratoRepository.findUltimosContratos();
+        return ultimosContratos.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+
 
 }

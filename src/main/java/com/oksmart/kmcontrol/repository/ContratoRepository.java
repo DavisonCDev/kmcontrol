@@ -14,4 +14,9 @@ public interface ContratoRepository extends JpaRepository<ContratoModel, Long> {
 
     @Query("SELECT c FROM ContratoModel c WHERE c.placa = :placa ORDER BY c.id DESC")
     List<ContratoModel> findByPlaca(@Param("placa") String placa);
+
+    // Query para obter o último contrato para cada número de contrato
+    @Query("SELECT c FROM ContratoModel c WHERE c.id IN " +
+            "(SELECT MAX(c2.id) FROM ContratoModel c2 GROUP BY c2.numeroContrato)")
+    List<ContratoModel> findUltimosContratos();
 }

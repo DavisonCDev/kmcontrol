@@ -44,5 +44,10 @@ public class ContratoController {
         return contratoService.fazerRevisao(fazerRevisaoDTO);
     }
 
+    //Endpoint para listar ultimos registros por numero de contrato
+    @GetMapping("/ultimos")
+    public List<ContratoDTO> listarUltimosContratos() {
+        return contratoService.listarUltimosContratos();
+    }
 
 }
