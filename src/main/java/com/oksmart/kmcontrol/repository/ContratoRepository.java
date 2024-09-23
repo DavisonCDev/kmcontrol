@@ -12,6 +12,7 @@ import java.util.List;
 public interface ContratoRepository extends JpaRepository<ContratoModel, Long> {
     ContratoModel findByNumeroContrato(String numeroContrato);
 
+    //Query para procurar por placa
     @Query("SELECT c FROM ContratoModel c WHERE c.placa = :placa ORDER BY c.id DESC")
     List<ContratoModel> findByPlaca(@Param("placa") String placa);
 
