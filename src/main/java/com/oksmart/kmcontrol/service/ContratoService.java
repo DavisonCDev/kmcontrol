@@ -3,6 +3,7 @@ package com.oksmart.kmcontrol.service;
 import com.oksmart.kmcontrol.dto.AtualizarKmDTO;
 import com.oksmart.kmcontrol.dto.ContratoCreateDTO;
 import com.oksmart.kmcontrol.dto.ContratoDTO;
+import com.oksmart.kmcontrol.dto.FazerRevisaoDTO;
 import com.oksmart.kmcontrol.model.ContratoModel;
 import com.oksmart.kmcontrol.repository.ContratoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -198,33 +198,29 @@ public class ContratoService {
         }
     }
 
-    //Método para atualizar o km dos veículos
+    // Método para atualizar o km dos veículos
     public ContratoDTO atualizarKm(AtualizarKmDTO atualizarKmDTO) {
-        // Busca todos os contratos com a placa fornecida
         List<ContratoModel> contratos = contratoRepository.findByPlaca(atualizarKmDTO.getPlaca());
 
         if (contratos.isEmpty()) {
             throw new IllegalArgumentException("Contrato não encontrado para a placa fornecida.");
         }
 
-        // Pega o último contrato (primeiro da lista após ordenação)
         ContratoModel ultimoContrato = contratos.get(0);
 
-        // Verifica se o kmAtual fornecido é maior que o kmAtual do último contrato
         if (atualizarKmDTO.getKmAtual() <= ultimoContrato.getKmAtual()) {
             throw new IllegalArgumentException("O Km Atual deve ser maior que: " + ultimoContrato.getKmAtual() + " KM.");
         }
 
-        // Cria um novo registro com os dados fornecidos
         ContratoModel novoContrato = new ContratoModel();
         novoContrato.setPlaca(atualizarKmDTO.getPlaca());
         novoContrato.setKmAtual(atualizarKmDTO.getKmAtual());
-        novoContrato.setDataAtual(LocalDate.now()); // Define a data atual
+        novoContrato.setDataAtual(LocalDate.now());
 
-        // Replicando os dados do último contrato
         novoContrato.setCondutorPrincipal(ultimoContrato.getCondutorPrincipal());
         novoContrato.setCondutorResponsavel(ultimoContrato.getCondutorResponsavel());
         novoContrato.setDiarias(ultimoContrato.getDiarias());
+        novoContrato.setDataRegistro(ultimoContrato.getDataRegistro());
         novoContrato.setFranquiaKm(ultimoContrato.getFranquiaKm());
         novoContrato.setKmInicial(ultimoContrato.getKmInicial());
         novoContrato.setLocadora(ultimoContrato.getLocadora());
@@ -234,12 +230,125 @@ public class ContratoService {
         novoContrato.setOsCliente(ultimoContrato.getOsCliente());
         novoContrato.setValorAluguel(ultimoContrato.getValorAluguel());
 
-        // Calcula a quantidade de meses entre dataRegistro e dataAtual
+        if (ultimoContrato.getDataRegistro() == null) {
+            throw new IllegalArgumentException("Data de registro do último contrato não pode ser nula.");
+        }
+
         long quantiaMeses = ChronoUnit.MONTHS.between(ultimoContrato.getDataRegistro(), LocalDate.now());
         novoContrato.setQuantiaMeses((int) quantiaMeses);
 
-        // Salva o novo contrato no banco
+        int kmPercorridos = atualizarKmDTO.getKmAtual() - ultimoContrato.getKmInicial();
+        double kmMediaMensal = (quantiaMeses == 0 ? 1 : quantiaMeses); // Considera 1 se quantiaMeses for 0
+        double media = (double) kmPercorridos / kmMediaMensal;
+        novoContrato.setKmMediaMensal((long) media);
+        novoContrato.setKmExcedido(media > ultimoContrato.getFranquiaKm());
+
+        // Cálculo do contadorRevisao
+        int contadorRevisao = atualizarKmDTO.getKmAtual() - ultimoContrato.getKmAtual() + ultimoContrato.getContadorRevisao();
+        novoContrato.setContadorRevisao(contadorRevisao);
+        novoContrato.setFazerRevisao(contadorRevisao > 10000);
+
+        // Cálculo do kmIdeal
+        long kmIdeal = ultimoContrato.getFranquiaKm() * quantiaMeses;
+        novoContrato.setKmIdeal(kmIdeal);
+
+        // Cálculo do acumuladoMes
+        long acumuladoMes = kmIdeal - atualizarKmDTO.getKmAtual();
+        novoContrato.setAcumuladoMes(acumuladoMes);
+
+        // Cálculo do saldoKm
+        double saldoKm = (double) ultimoContrato.getValorAluguel() / ultimoContrato.getFranquiaKm() * acumuladoMes;
+        novoContrato.setSaldoKm(saldoKm);
+
+        // Verifica se acumuladoMes é menor que 0 para definir kmExcedido
+        novoContrato.setKmExcedido(acumuladoMes < 0);
+
+        // Define observações
+        StringBuilder observacoes = new StringBuilder();
+
+        if (novoContrato.isFazerRevisao()) {
+            observacoes.append("Necessário marcar a revisão");
+        }
+
+        if (novoContrato.isKmExcedido()) {
+            if (observacoes.length() > 0) {
+                observacoes.append(" | ");
+            }
+            observacoes.append("Km Excedido: ").append(novoContrato.getAcumuladoMes());
+        } else {
+            if (observacoes.length() > 0) {
+                observacoes.append(" | ");
+            }
+            observacoes.append("Km Livre: ").append(novoContrato.getAcumuladoMes());
+        }
+
+        novoContrato.setObservacoes(observacoes.toString());
+
         ContratoModel savedContrato = contratoRepository.save(novoContrato);
         return convertToDTO(savedContrato);
     }
+
+    // Método para fazer revisão de um contrato
+    public ContratoDTO fazerRevisao(FazerRevisaoDTO fazerRevisaoDTO) {
+        List<ContratoModel> contratos = contratoRepository.findByPlaca(fazerRevisaoDTO.getPlaca());
+
+        if (contratos.isEmpty()) {
+            throw new IllegalArgumentException("Contrato não encontrado para a placa fornecida.");
+        }
+
+        ContratoModel ultimoContrato = contratos.get(0);
+
+        ContratoModel novoContrato = new ContratoModel();
+        novoContrato.setPlaca(ultimoContrato.getPlaca());
+        novoContrato.setKmAtual(0); // ContadorRevisao zerado
+        novoContrato.setFazerRevisao(false); // Fazer revisão falso
+        novoContrato.setDataAtual(LocalDate.now()); // Data atual
+
+        // Copia todos os outros dados do último contrato
+        novoContrato.setCondutorPrincipal(ultimoContrato.getCondutorPrincipal());
+        novoContrato.setCondutorResponsavel(ultimoContrato.getCondutorResponsavel());
+        novoContrato.setDiarias(ultimoContrato.getDiarias());
+        novoContrato.setDataRegistro(ultimoContrato.getDataRegistro());
+        novoContrato.setFranquiaKm(ultimoContrato.getFranquiaKm());
+        novoContrato.setKmInicial(ultimoContrato.getKmInicial());
+        novoContrato.setLocadora(ultimoContrato.getLocadora());
+        novoContrato.setMarca(ultimoContrato.getMarca());
+        novoContrato.setModelo(ultimoContrato.getModelo());
+        novoContrato.setNumeroContrato(ultimoContrato.getNumeroContrato());
+        novoContrato.setOsCliente(ultimoContrato.getOsCliente());
+        novoContrato.setValorAluguel(ultimoContrato.getValorAluguel());
+        novoContrato.setQuantiaMeses(ultimoContrato.getQuantiaMeses());
+        novoContrato.setKmMediaMensal(ultimoContrato.getKmMediaMensal());
+        novoContrato.setKmIdeal(ultimoContrato.getKmIdeal());
+        novoContrato.setKmAtual(ultimoContrato.getKmAtual());
+        novoContrato.setKmExcedido(ultimoContrato.isKmExcedido());
+        novoContrato.setAcumuladoMes(ultimoContrato.getAcumuladoMes());
+        novoContrato.setSaldoKm(ultimoContrato.getSaldoKm());
+        novoContrato.setContadorRevisao(0); // Contador de revisão zerado
+
+        // Define observações
+        StringBuilder observacoes = new StringBuilder();
+
+        if (novoContrato.isFazerRevisao()) {
+            observacoes.append("Necessário marcar a revisão");
+        }
+
+        if (novoContrato.isKmExcedido()) {
+            if (observacoes.length() > 0) {
+                observacoes.append(" | ");
+            }
+            observacoes.append("Km Excedido: ").append(novoContrato.getAcumuladoMes());
+        } else {
+            if (observacoes.length() > 0) {
+                observacoes.append(" | ");
+            }
+            observacoes.append("Km Livre: ").append(novoContrato.getAcumuladoMes());
+        }
+
+        novoContrato.setObservacoes(observacoes.toString());
+
+        ContratoModel savedContrato = contratoRepository.save(novoContrato);
+        return convertToDTO(savedContrato);
+    }
+
 }

@@ -1,9 +1,6 @@
 package com.oksmart.kmcontrol.controller;
 
-import com.oksmart.kmcontrol.dto.AtualizarKmDTO;
-import com.oksmart.kmcontrol.dto.ContratoCreateDTO;
-import com.oksmart.kmcontrol.dto.ContratoDTO;
-import com.oksmart.kmcontrol.dto.ContratoDeleteDTO;
+import com.oksmart.kmcontrol.dto.*;
 import com.oksmart.kmcontrol.service.ContratoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -40,5 +37,12 @@ public class ContratoController {
     public ContratoDTO atualizarKm(@RequestBody AtualizarKmDTO atualizarKmDTO) {
         return contratoService.atualizarKm(atualizarKmDTO);
     }
+
+    //Endpoint para fazer a revisão dos veículos
+    @PostMapping("/fazer-revisao")
+    public ContratoDTO fazerRevisao(@RequestBody FazerRevisaoDTO fazerRevisaoDTO) {
+        return contratoService.fazerRevisao(fazerRevisaoDTO);
+    }
+
 
 }
