@@ -10,7 +10,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/contratos")
 public class ContratoController {
-
     @Autowired
     private ContratoService contratoService;
 
