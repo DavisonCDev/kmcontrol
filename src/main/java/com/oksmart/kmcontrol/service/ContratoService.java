@@ -192,12 +192,11 @@ public class ContratoService {
 
     // Método para deletar um contrato pelo número do contrato
     public void deletarContrato(String numeroContrato) {
-        ContratoModel contrato = contratoRepository.findByNumeroContrato(numeroContrato);
-        if (contrato != null) {
-            contratoRepository.delete(contrato);
-        } else {
+        List<ContratoModel> contratos = contratoRepository.findByNumeroContrato(numeroContrato);
+        if (contratos.isEmpty()) {
             throw new IllegalArgumentException("Contrato não encontrado para o número fornecido.");
         }
+        contratoRepository.deleteAll(contratos);
     }
 
     // Método para atualizar o km dos veículos

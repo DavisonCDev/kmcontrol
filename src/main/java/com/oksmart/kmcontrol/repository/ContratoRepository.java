@@ -10,7 +10,6 @@ import java.util.List;
 
 @Repository
 public interface ContratoRepository extends JpaRepository<ContratoModel, Long> {
-    ContratoModel findByNumeroContrato(String numeroContrato);
 
     //Query para procurar por placa
     @Query("SELECT c FROM ContratoModel c WHERE c.placa = :placa ORDER BY c.id DESC")
@@ -20,4 +19,6 @@ public interface ContratoRepository extends JpaRepository<ContratoModel, Long> {
     @Query("SELECT c FROM ContratoModel c WHERE c.id IN " +
             "(SELECT MAX(c2.id) FROM ContratoModel c2 GROUP BY c2.numeroContrato)")
     List<ContratoModel> findUltimosContratos();
+
+    List<ContratoModel> findByNumeroContrato(String numeroContrato);
 }
