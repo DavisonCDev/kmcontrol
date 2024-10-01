@@ -3,6 +3,7 @@ package com.oksmart.kmcontrol.controller;
 import com.oksmart.kmcontrol.dto.*;
 import com.oksmart.kmcontrol.service.ContratoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -49,4 +50,10 @@ public class ContratoController {
         return contratoService.listarUltimosContratos();
     }
 
+    //Endpoint para substituir veículos
+    @PostMapping("/substituirVeiculo")
+    public ResponseEntity<ContratoDTO> substituirVeiculo(@RequestBody SubstituirVeiculoDTO substituirVeiculoDTO) {
+        ContratoDTO contratoDTO = contratoService.substituirVeiculo(substituirVeiculoDTO);
+        return ResponseEntity.ok(contratoDTO);
+    }
 }

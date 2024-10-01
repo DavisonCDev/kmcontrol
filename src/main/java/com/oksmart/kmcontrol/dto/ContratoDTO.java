@@ -15,6 +15,7 @@ public class ContratoDTO {
     private String condutorResponsavel;
     private LocalDate dataAtual;
     private LocalDate dataRegistro;
+    private LocalDate dataVigencia;
     private int diarias;
     private int franquiaKm;
     private int kmAtual;

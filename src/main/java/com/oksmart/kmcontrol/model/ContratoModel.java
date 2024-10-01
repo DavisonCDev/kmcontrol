@@ -30,6 +30,9 @@ public class ContratoModel {
     @Column(name = "data_registro")
     private LocalDate dataRegistro;
 
+    @Column(name = "data_vigencia")
+    private LocalDate dataVigencia;
+
     @Column(name = "diarias")
     private int diarias;
 

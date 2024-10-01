@@ -1,9 +1,6 @@
 package com.oksmart.kmcontrol.service;
 
-import com.oksmart.kmcontrol.dto.AtualizarKmDTO;
-import com.oksmart.kmcontrol.dto.ContratoCreateDTO;
-import com.oksmart.kmcontrol.dto.ContratoDTO;
-import com.oksmart.kmcontrol.dto.FazerRevisaoDTO;
+import com.oksmart.kmcontrol.dto.*;
 import com.oksmart.kmcontrol.model.ContratoModel;
 import com.oksmart.kmcontrol.repository.ContratoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,9 +51,19 @@ public class ContratoService {
         LocalDate dataRegistro = contratoCreateDTO.getDataRegistro();
         contrato.setDataRegistro(dataRegistro);
 
-        // Calcula a quantidade de meses entre dataRegistro e dataAtual
+        // Calcular a quantidade de meses entre dataRegistro e dataAtual
         long quantiaMeses = ChronoUnit.MONTHS.between(dataRegistro, dataAtual);
         contrato.setQuantiaMeses((int) quantiaMeses);
+
+        long totalDias = contratoCreateDTO.getDiarias() * contrato.getQuantiaMeses();
+        LocalDate dataVigencia = dataRegistro.plusDays(totalDias);
+
+        // Verificar se a dataVigencia é anterior à dataAtual
+        if (dataVigencia.isBefore(dataAtual)) {
+            dataVigencia = dataVigencia.plusDays(contratoCreateDTO.getDiarias());
+        }
+
+        contrato.setDataVigencia(dataVigencia);
 
         // Calcula kmMediaMensal
         int mesesParaCalculo = quantiaMeses == 0 ? 1 : (int) quantiaMeses;
@@ -71,8 +78,7 @@ public class ContratoService {
         contrato.setFazerRevisao(contadorRevisao > 10000);
 
         // Calcula kmIdeal
-        int mesesParaKmIdeal = quantiaMeses == 0 ? 1 : (int) quantiaMeses;
-        int kmIdeal = contratoCreateDTO.getFranquiaKm() * mesesParaKmIdeal;
+        int kmIdeal = contratoCreateDTO.getFranquiaKm() * (int) quantiaMeses;
         contrato.setKmIdeal(kmIdeal);
 
         // Calcula acumuladoMes
@@ -132,6 +138,7 @@ public class ContratoService {
                 contrato.getCondutorResponsavel(),
                 contrato.getDataAtual(),
                 contrato.getDataRegistro(),
+                contrato.getDataVigencia(),
                 contrato.getDiarias(),
                 contrato.getFranquiaKm(),
                 contrato.getKmAtual(),
@@ -165,6 +172,7 @@ public class ContratoService {
                 contratoDTO.getCondutorResponsavel(),
                 contratoDTO.getDataAtual(),
                 contratoDTO.getDataRegistro(),
+                contratoDTO.getDataVigencia(),
                 contratoDTO.getDiarias(),
                 contratoDTO.getFranquiaKm(),
                 contratoDTO.getKmAtual(),
@@ -237,6 +245,16 @@ public class ContratoService {
 
         long quantiaMeses = ChronoUnit.MONTHS.between(ultimoContrato.getDataRegistro(), LocalDate.now());
         novoContrato.setQuantiaMeses((int) quantiaMeses);
+
+        long totalDias = ultimoContrato.getDiarias() * ultimoContrato.getQuantiaMeses();
+        LocalDate dataVigencia = ultimoContrato.getDataRegistro().plusDays(totalDias);
+
+        // Verificar se a dataVigencia é anterior à dataAtual
+        if (dataVigencia.isBefore(ultimoContrato.getDataAtual())) {
+            dataVigencia = dataVigencia.plusDays(ultimoContrato.getDiarias());
+        }
+
+        novoContrato.setDataVigencia(dataVigencia);
 
         int kmPercorridos = atualizarKmDTO.getKmAtual() - ultimoContrato.getKmInicial();
         double kmMediaMensal = (quantiaMeses == 0 ? 1 : quantiaMeses); // Considera 1 se quantiaMeses for 0
@@ -360,6 +378,48 @@ public class ContratoService {
                 .collect(Collectors.toList());
     }
 
+    //Método para substituir veículos
+    public ContratoDTO substituirVeiculo(SubstituirVeiculoDTO substituirVeiculoDTO) {
+        // Busca o último contrato com o número do contrato fornecido
+        List<ContratoModel> contratos = contratoRepository.findByNumeroContrato(substituirVeiculoDTO.getNumeroContrato());
+
+        if (contratos.isEmpty()) {
+            throw new IllegalArgumentException("Contrato não encontrado para o número fornecido.");
+        }
+
+        ContratoModel ultimoContrato = contratos.get(0);
+        ContratoModel novoContrato = new ContratoModel();
+
+        // Copia todos os dados do último contrato, exceto os que precisam ser alterados
+        novoContrato.setMarca(substituirVeiculoDTO.getMarca());
+        novoContrato.setModelo(substituirVeiculoDTO.getModelo());
+        novoContrato.setPlaca(substituirVeiculoDTO.getPlaca());
+        novoContrato.setKmInicial(substituirVeiculoDTO.getKmInicial());
+        novoContrato.setKmAtual(substituirVeiculoDTO.getKmAtual());
+        novoContrato.setDataAtual(LocalDate.now());
+        novoContrato.setDataRegistro(substituirVeiculoDTO.getDataRegistro());
 
 
+        novoContrato.setNumeroContrato(ultimoContrato.getNumeroContrato());
+        novoContrato.setCondutorPrincipal(ultimoContrato.getCondutorPrincipal());
+        novoContrato.setCondutorResponsavel(ultimoContrato.getCondutorResponsavel());
+        novoContrato.setDiarias(ultimoContrato.getDiarias());
+        novoContrato.setFranquiaKm(ultimoContrato.getFranquiaKm());
+        novoContrato.setLocadora(ultimoContrato.getLocadora());
+        novoContrato.setOsCliente(ultimoContrato.getOsCliente());
+        novoContrato.setValorAluguel(ultimoContrato.getValorAluguel());
+
+
+        // Cálculo do kmIdeal
+        long kmIdeal = (ultimoContrato.getFranquiaKm() * ultimoContrato.getQuantiaMeses())+novoContrato.getKmInicial();
+
+        // Calcular a quantidade de meses entre dataRegistro e dataAtual
+        long quantiaMeses = ChronoUnit.MONTHS.between(substituirVeiculoDTO.getDataRegistro(),LocalDate.now());
+        novoContrato.setQuantiaMeses((int) quantiaMeses + ultimoContrato.getQuantiaMeses());
+
+
+        // Salva o novo contrato no banco de dados
+        ContratoModel savedContrato = contratoRepository.save(novoContrato);
+        return convertToDTO(savedContrato);
+    }
 }
