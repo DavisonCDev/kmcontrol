@@ -210,13 +210,11 @@ public class ContratoService {
     // Método para atualizar o km dos veículos
     public ContratoDTO atualizarKm(AtualizarKmDTO atualizarKmDTO) {
         List<ContratoModel> contratos = contratoRepository.findByPlaca(atualizarKmDTO.getPlaca());
-
         if (contratos.isEmpty()) {
             throw new IllegalArgumentException("Contrato não encontrado para a placa fornecida.");
         }
 
         ContratoModel ultimoContrato = contratos.get(0);
-
         if (atualizarKmDTO.getKmAtual() <= ultimoContrato.getKmAtual()) {
             throw new IllegalArgumentException("O Km Atual deve ser maior que: " + ultimoContrato.getKmAtual() + " KM.");
         }
@@ -390,31 +388,31 @@ public class ContratoService {
         ContratoModel ultimoContrato = contratos.get(0);
         ContratoModel novoContrato = new ContratoModel();
 
-        // Copia todos os dados do último contrato, exceto os que precisam ser alterados
-        novoContrato.setMarca(substituirVeiculoDTO.getMarca());
-        novoContrato.setModelo(substituirVeiculoDTO.getModelo());
-        novoContrato.setPlaca(substituirVeiculoDTO.getPlaca());
-        novoContrato.setKmInicial(substituirVeiculoDTO.getKmInicial());
-        novoContrato.setKmAtual(substituirVeiculoDTO.getKmAtual());
-        novoContrato.setDataAtual(LocalDate.now());
-        novoContrato.setDataRegistro(substituirVeiculoDTO.getDataRegistro());
 
-
-        novoContrato.setNumeroContrato(ultimoContrato.getNumeroContrato());
+        // Copia todos os dados do último contrato, exceto os que precisam ser alterados0
         novoContrato.setCondutorPrincipal(ultimoContrato.getCondutorPrincipal());
         novoContrato.setCondutorResponsavel(ultimoContrato.getCondutorResponsavel());
+        novoContrato.setDataVigencia(ultimoContrato.getDataVigencia());
         novoContrato.setDiarias(ultimoContrato.getDiarias());
         novoContrato.setFranquiaKm(ultimoContrato.getFranquiaKm());
         novoContrato.setLocadora(ultimoContrato.getLocadora());
         novoContrato.setOsCliente(ultimoContrato.getOsCliente());
+        novoContrato.setQuantiaMeses(ultimoContrato.getQuantiaMeses());
         novoContrato.setValorAluguel(ultimoContrato.getValorAluguel());
+        novoContrato.setDataAtual(LocalDate.now());
+        novoContrato.setKmMediaMensal(ultimoContrato.getKmMediaMensal());
 
-        // Calcular a quantidade de meses entre dataRegistro e dataAtual
-        long quantiaMeses = ChronoUnit.MONTHS.between(substituirVeiculoDTO.getDataRegistro(),LocalDate.now());
-        novoContrato.setQuantiaMeses((int) quantiaMeses + ultimoContrato.getQuantiaMeses());
-
-        // Cálculo do kmIdeal
-        long kmIdeal = (novoContrato.getFranquiaKm() * novoContrato.getQuantiaMeses())+novoContrato.getKmInicial();
+        // Define os novos dados
+        novoContrato.setDataRegistro(substituirVeiculoDTO.getDataRegistro());
+        novoContrato.setKmInicial(substituirVeiculoDTO.getKmInicial());
+        novoContrato.setKmAtual(substituirVeiculoDTO.getKmInicial());
+        novoContrato.setKmIdeal(substituirVeiculoDTO.getKmInicial());
+        novoContrato.setMarca(substituirVeiculoDTO.getMarca());
+        novoContrato.setModelo(substituirVeiculoDTO.getModelo());
+        novoContrato.setPlaca(substituirVeiculoDTO.getPlaca());
+        novoContrato.setNumeroContrato(substituirVeiculoDTO.getNumeroContrato());
+        // Define a data atual
+        novoContrato.setDataAtual(LocalDate.now());
 
 
         // Salva o novo contrato no banco de dados
