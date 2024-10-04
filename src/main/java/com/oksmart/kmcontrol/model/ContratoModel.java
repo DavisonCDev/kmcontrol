@@ -33,6 +33,9 @@ public class ContratoModel {
     @Column(name = "data_vigencia")
     private LocalDate dataVigencia;
 
+    @Column(name="data_substituicao")
+    private LocalDate dataSubstituicao;
+
     @Column(name = "diarias")
     private int diarias;
 

@@ -16,6 +16,7 @@ public class ContratoDTO {
     private LocalDate dataAtual;
     private LocalDate dataRegistro;
     private LocalDate dataVigencia;
+    private LocalDate dataSubstituicao;
     private int diarias;
     private int franquiaKm;
     private int kmAtual;

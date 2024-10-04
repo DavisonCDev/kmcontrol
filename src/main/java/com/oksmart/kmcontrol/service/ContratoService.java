@@ -139,6 +139,7 @@ public class ContratoService {
                 contrato.getDataAtual(),
                 contrato.getDataRegistro(),
                 contrato.getDataVigencia(),
+                contrato.getDataSubstituicao(),
                 contrato.getDiarias(),
                 contrato.getFranquiaKm(),
                 contrato.getKmAtual(),
@@ -173,6 +174,7 @@ public class ContratoService {
                 contratoDTO.getDataAtual(),
                 contratoDTO.getDataRegistro(),
                 contratoDTO.getDataVigencia(),
+                contratoDTO.getDataSubstituicao(),
                 contratoDTO.getDiarias(),
                 contratoDTO.getFranquiaKm(),
                 contratoDTO.getKmAtual(),
@@ -266,7 +268,7 @@ public class ContratoService {
         novoContrato.setFazerRevisao(contadorRevisao > 10000);
 
         // Cálculo do kmIdeal
-        long kmIdeal = (ultimoContrato.getFranquiaKm() * quantiaMeses) + ultimoContrato.getKmInicial()  ;
+        long kmIdeal = (novoContrato.getFranquiaKm() * quantiaMeses) + novoContrato.getKmInicial()  ;
         novoContrato.setKmIdeal(kmIdeal);
 
         // Cálculo do acumuladoMes
@@ -393,6 +395,7 @@ public class ContratoService {
         novoContrato.setCondutorPrincipal(ultimoContrato.getCondutorPrincipal());
         novoContrato.setCondutorResponsavel(ultimoContrato.getCondutorResponsavel());
         novoContrato.setDataVigencia(ultimoContrato.getDataVigencia());
+        novoContrato.setDataRegistro(ultimoContrato.getDataRegistro());
         novoContrato.setDiarias(ultimoContrato.getDiarias());
         novoContrato.setFranquiaKm(ultimoContrato.getFranquiaKm());
         novoContrato.setLocadora(ultimoContrato.getLocadora());
@@ -403,7 +406,7 @@ public class ContratoService {
         novoContrato.setKmMediaMensal(ultimoContrato.getKmMediaMensal());
 
         // Define os novos dados
-        novoContrato.setDataRegistro(substituirVeiculoDTO.getDataRegistro());
+        novoContrato.setDataSubstituicao(substituirVeiculoDTO.getDataSubstituicao());
         novoContrato.setKmInicial(substituirVeiculoDTO.getKmInicial());
         novoContrato.setKmAtual(substituirVeiculoDTO.getKmInicial());
         novoContrato.setKmIdeal(substituirVeiculoDTO.getKmInicial());

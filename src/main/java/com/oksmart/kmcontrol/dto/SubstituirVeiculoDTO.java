@@ -10,7 +10,7 @@ import java.time.LocalDate;
 public class SubstituirVeiculoDTO {
     private String numeroContrato;
     private String placa;
-    private LocalDate dataRegistro;
+    private LocalDate dataSubstituicao;
     private int kmInicial;
     private int kmAtual;
     private String modelo;
