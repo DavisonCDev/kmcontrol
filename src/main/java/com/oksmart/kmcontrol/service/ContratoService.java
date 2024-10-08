@@ -52,10 +52,11 @@ public class ContratoService {
         contrato.setDataRegistro(dataRegistro);
 
         // Calcular a quantidade de meses entre dataRegistro e dataAtual
-        long quantiaMeses = ChronoUnit.MONTHS.between(dataRegistro, dataAtual);
-        contrato.setQuantiaMeses((int) quantiaMeses);
+        long qtMesesCont = ChronoUnit.MONTHS.between(dataRegistro, dataAtual);
+        contrato.setQtMesesCont((int) qtMesesCont);
+        contrato.setQtMesesVeic((int) qtMesesCont);
 
-        long totalDias = contratoCreateDTO.getDiarias() * contrato.getQuantiaMeses();
+        long totalDias = contratoCreateDTO.getDiarias() * contrato.getQtMesesVeic();
         LocalDate dataVigencia = dataRegistro.plusDays(totalDias);
 
         // Verificar se a dataVigencia é anterior à dataAtual
@@ -66,7 +67,7 @@ public class ContratoService {
         contrato.setDataVigencia(dataVigencia);
 
         // Calcula kmMediaMensal
-        int mesesParaCalculo = quantiaMeses == 0 ? 1 : (int) quantiaMeses;
+        int mesesParaCalculo = qtMesesCont == 0 ? 1 : (int) qtMesesCont;
         double kmMediaMensal = (double) contratoCreateDTO.getKmAtual() / mesesParaCalculo;
         contrato.setKmMediaMensal((long) kmMediaMensal);
 
@@ -78,7 +79,7 @@ public class ContratoService {
         contrato.setFazerRevisao(contadorRevisao > 10000);
 
         // Calcula kmIdeal
-        int kmIdeal = (contratoCreateDTO.getFranquiaKm() * (int) quantiaMeses) + contratoCreateDTO.getKmInicial();
+        int kmIdeal = (contratoCreateDTO.getFranquiaKm() * (int) qtMesesCont) + contratoCreateDTO.getKmInicial();
         contrato.setKmIdeal(kmIdeal);
 
         // Calcula acumuladoMes
@@ -156,7 +157,8 @@ public class ContratoService {
                 contrato.getKmIdeal(),
                 contrato.getKmSemana(),
                 contrato.getKmMediaMensal(),
-                contrato.getQuantiaMeses(),
+                contrato.getQtMesesVeic(),
+                contrato.getQtMesesCont(),
                 contrato.getSaldoKm(),
                 contrato.getAcumuladoMes(),
                 contrato.getEntregaPropData(),
@@ -191,7 +193,8 @@ public class ContratoService {
                 contratoDTO.getKmIdeal(),
                 contratoDTO.getKmSemana(),
                 contratoDTO.getKmMediaMensal(),
-                contratoDTO.getQuantiaMeses(),
+                contratoDTO.getQtMesesVeic(),
+                contratoDTO.getQtMesesCont(),
                 contratoDTO.getSaldoKm(),
                 contratoDTO.getAcumuladoMes(),
                 contratoDTO.getEntregaPropData(),
@@ -238,16 +241,27 @@ public class ContratoService {
         novoContrato.setNumeroContrato(ultimoContrato.getNumeroContrato());
         novoContrato.setOsCliente(ultimoContrato.getOsCliente());
         novoContrato.setValorAluguel(ultimoContrato.getValorAluguel());
+        novoContrato.setDataSubstituicao(ultimoContrato.getDataSubstituicao());
 
         if (ultimoContrato.getDataRegistro() == null) {
             throw new IllegalArgumentException("Data de registro do último contrato não pode ser nula.");
         }
 
-        long quantiaMeses = ChronoUnit.MONTHS.between(ultimoContrato.getDataRegistro(), LocalDate.now());
-        novoContrato.setQuantiaMeses((int) quantiaMeses);
+        long qtMesesCont = ChronoUnit.MONTHS.between(ultimoContrato.getDataRegistro(), LocalDate.now());
 
-        long totalDias = ultimoContrato.getDiarias() * ultimoContrato.getQuantiaMeses();
-        LocalDate dataVigencia = ultimoContrato.getDataRegistro().plusDays(totalDias);
+        // Usando dataRegistro se dataSubstituicao for nula
+        LocalDate dataReferencia = (ultimoContrato.getDataSubstituicao() != null)
+                ? ultimoContrato.getDataSubstituicao()
+                : ultimoContrato.getDataRegistro();
+
+        long qtMesesVeic = ChronoUnit.MONTHS.between(dataReferencia, LocalDate.now());
+
+        novoContrato.setQtMesesCont((int) qtMesesCont);
+        novoContrato.setQtMesesVeic((int) qtMesesVeic);
+
+        long totalDiasCont = ultimoContrato.getDiarias() * qtMesesCont;
+        // Cálculo da vigência do contrato
+        LocalDate dataVigencia = ultimoContrato.getDataRegistro().plusDays(totalDiasCont);
 
         // Verificar se a dataVigencia é anterior à dataAtual
         if (dataVigencia.isBefore(ultimoContrato.getDataAtual())) {
@@ -257,7 +271,7 @@ public class ContratoService {
         novoContrato.setDataVigencia(dataVigencia);
 
         int kmPercorridos = atualizarKmDTO.getKmAtual() - ultimoContrato.getKmInicial();
-        double kmMediaMensal = (quantiaMeses == 0 ? 1 : quantiaMeses); // Considera 1 se quantiaMeses for 0
+        double kmMediaMensal = (qtMesesCont == 0 ? 1 : qtMesesCont); // Considera 1 se qtMesesCont for 0
         double media = (double) kmPercorridos / kmMediaMensal;
         novoContrato.setKmMediaMensal((long) media);
         novoContrato.setKmExcedido(media > ultimoContrato.getFranquiaKm());
@@ -268,7 +282,7 @@ public class ContratoService {
         novoContrato.setFazerRevisao(contadorRevisao > 10000);
 
         // Cálculo do kmIdeal
-        long kmIdeal = (novoContrato.getFranquiaKm() * quantiaMeses) + novoContrato.getKmInicial()  ;
+        long kmIdeal = (novoContrato.getFranquiaKm() * qtMesesVeic) + novoContrato.getKmInicial();
         novoContrato.setKmIdeal(kmIdeal);
 
         // Cálculo do acumuladoMes
@@ -336,7 +350,7 @@ public class ContratoService {
         novoContrato.setNumeroContrato(ultimoContrato.getNumeroContrato());
         novoContrato.setOsCliente(ultimoContrato.getOsCliente());
         novoContrato.setValorAluguel(ultimoContrato.getValorAluguel());
-        novoContrato.setQuantiaMeses(ultimoContrato.getQuantiaMeses());
+        novoContrato.setQtMesesVeic(ultimoContrato.getQtMesesVeic());
         novoContrato.setKmMediaMensal(ultimoContrato.getKmMediaMensal());
         novoContrato.setKmIdeal(ultimoContrato.getKmIdeal());
         novoContrato.setKmAtual(ultimoContrato.getKmAtual());
@@ -400,7 +414,7 @@ public class ContratoService {
         novoContrato.setFranquiaKm(ultimoContrato.getFranquiaKm());
         novoContrato.setLocadora(ultimoContrato.getLocadora());
         novoContrato.setOsCliente(ultimoContrato.getOsCliente());
-        novoContrato.setQuantiaMeses(ultimoContrato.getQuantiaMeses());
+        novoContrato.setQtMesesVeic(ultimoContrato.getQtMesesVeic());
         novoContrato.setValorAluguel(ultimoContrato.getValorAluguel());
         novoContrato.setDataAtual(LocalDate.now());
         novoContrato.setKmMediaMensal(ultimoContrato.getKmMediaMensal());

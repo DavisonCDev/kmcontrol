@@ -84,8 +84,11 @@ public class ContratoModel {
     @Column(name = "km_media_mensal")
     private long kmMediaMensal;
 
-    @Column(name = "quantia_meses")
-    private int quantiaMeses;
+    @Column(name = "qt_meses_veic")
+    private int qtMesesVeic;
+
+    @Column(name = "qt_meses_cont")
+    private int qtMesesCont;
 
     @Column(name = "saldo_km")
     private double saldoKm;

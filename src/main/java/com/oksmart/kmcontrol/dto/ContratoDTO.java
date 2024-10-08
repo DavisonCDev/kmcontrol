@@ -33,7 +33,8 @@ public class ContratoDTO {
     private long kmIdeal;
     private long kmSemana;
     private long kmMediaMensal;
-    private int quantiaMeses;
+    private int qtMesesVeic;
+    private int qtMesesCont;
     private double saldoKm;
     private long acumuladoMes;
     private LocalDate entregaPropData;

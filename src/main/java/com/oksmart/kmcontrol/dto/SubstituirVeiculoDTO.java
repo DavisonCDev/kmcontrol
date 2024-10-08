@@ -15,4 +15,5 @@ public class SubstituirVeiculoDTO {
     private int kmAtual;
     private String modelo;
     private String marca;
+    private int qtMesesVeic;
 }
