@@ -342,6 +342,7 @@ public class ContratoService {
         novoContrato.setCondutorResponsavel(ultimoContrato.getCondutorResponsavel());
         novoContrato.setDiarias(ultimoContrato.getDiarias());
         novoContrato.setDataRegistro(ultimoContrato.getDataRegistro());
+        novoContrato.setDataVigencia(ultimoContrato.getDataVigencia());
         novoContrato.setFranquiaKm(ultimoContrato.getFranquiaKm());
         novoContrato.setKmInicial(ultimoContrato.getKmInicial());
         novoContrato.setLocadora(ultimoContrato.getLocadora());
