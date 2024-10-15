@@ -79,8 +79,8 @@ public class ContratoService {
         contrato.setFazerRevisao(contadorRevisao > 10000);
 
         // Calcula kmIdeal
-        int kmIdeal = (contratoCreateDTO.getFranquiaKm() * (int) qtMesesCont) + contratoCreateDTO.getKmInicial();
-        contrato.setKmIdeal(kmIdeal);
+        int kmIdeal = ((contratoCreateDTO.getFranquiaKm() *
+                (int) qtMesesCont)) + contratoCreateDTO.getKmInicial();
 
         // Calcula acumuladoMes
         long acumuladoMes = kmIdeal - contratoCreateDTO.getKmAtual();
