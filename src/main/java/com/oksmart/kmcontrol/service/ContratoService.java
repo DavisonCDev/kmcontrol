@@ -46,22 +46,27 @@ public class ContratoService {
         // Define o campo dataAtual como a data atual
         LocalDate dataAtual = LocalDate.now();
         contrato.setDataAtual(dataAtual);
+        System.out.println("Data atual: " + dataAtual);
 
         // Define dataRegistro a partir do DTO
         LocalDate dataRegistro = contratoCreateDTO.getDataRegistro();
         contrato.setDataRegistro(dataRegistro);
+        System.out.println("Data de registro: " + dataRegistro);
 
         // Calcular a quantidade de meses entre dataRegistro e dataAtual
         long qtMesesCont = ChronoUnit.MONTHS.between(dataRegistro, dataAtual);
         contrato.setQtMesesCont((int) qtMesesCont);
         contrato.setQtMesesVeic((int) qtMesesCont);
+        System.out.println("Quantidade de meses entre dataRegistro e dataAtual: " + qtMesesCont);
 
         long totalDias = contratoCreateDTO.getDiarias() * contrato.getQtMesesVeic();
         LocalDate dataVigencia = dataRegistro.plusDays(totalDias);
+        System.out.println("Total de dias calculados: " + totalDias + " | Data de vigência inicial: " + dataVigencia);
 
         // Verificar se a dataVigencia é anterior à dataAtual
         if (dataVigencia.isBefore(dataAtual)) {
             dataVigencia = dataVigencia.plusDays(contratoCreateDTO.getDiarias());
+            System.out.println("Data de vigência foi ajustada para: " + dataVigencia);
         }
 
         contrato.setDataVigencia(dataVigencia);
@@ -70,30 +75,36 @@ public class ContratoService {
         int mesesParaCalculo = qtMesesCont == 0 ? 1 : (int) qtMesesCont;
         double kmMediaMensal = (double) contratoCreateDTO.getKmAtual() / mesesParaCalculo;
         contrato.setKmMediaMensal((long) kmMediaMensal);
+        System.out.println("KM médio mensal: " + kmMediaMensal);
 
         // Calcula contadorRevisao
         int contadorRevisao = contratoCreateDTO.getKmAtual() - contratoCreateDTO.getKmInicial();
         contrato.setContadorRevisao(contadorRevisao);
+        System.out.println("Contador de revisão: " + contadorRevisao);
 
         // Verifica se deve fazer revisão
         contrato.setFazerRevisao(contadorRevisao > 10000);
+        System.out.println("Necessário fazer revisão? " + contrato.isFazerRevisao());
 
         // Calcula kmIdeal
-        int kmIdeal = ((contratoCreateDTO.getFranquiaKm() *
-                (int) qtMesesCont)) + contratoCreateDTO.getKmInicial();
+        int kmIdeal = (contratoCreateDTO.getFranquiaKm() * ((int) qtMesesCont+1)) + contratoCreateDTO.getKmInicial();
+        System.out.println("KM ideal: " + kmIdeal);
 
         // Calcula acumuladoMes
         long acumuladoMes = kmIdeal - contratoCreateDTO.getKmAtual();
         contrato.setAcumuladoMes(acumuladoMes);
+        System.out.println("Acumulado do mês: " + acumuladoMes);
 
         // Define kmExcedido com base no acumuladoMes
         contrato.setKmExcedido(acumuladoMes < 0);
+        System.out.println("KM excedido? " + contrato.isKmExcedido());
 
         // Calcula saldoKm
-        double saldoKm = (contratoCreateDTO.getValorAluguel()
-                / contratoCreateDTO.getFranquiaKm()) * acumuladoMes;
+        double saldoKm = (contratoCreateDTO.getValorAluguel() / contratoCreateDTO.getFranquiaKm()) * acumuladoMes;
         contrato.setSaldoKm(saldoKm);
+        System.out.println("Saldo KM: " + saldoKm);
 
+        // Resto do código...
         contrato.setDiarias(contratoCreateDTO.getDiarias());
         contrato.setFranquiaKm(contratoCreateDTO.getFranquiaKm());
         contrato.setKmAtual(contratoCreateDTO.getKmAtual());
@@ -128,6 +139,7 @@ public class ContratoService {
         contrato.setObservacoes(observacoes.toString());
 
         ContratoModel savedContrato = contratoRepository.save(contrato);
+        System.out.println("Contrato salvo com sucesso: " + savedContrato);
         return convertToDTO(savedContrato);
     }
 
@@ -282,7 +294,7 @@ public class ContratoService {
         novoContrato.setFazerRevisao(contadorRevisao > 10000);
 
         // Cálculo do kmIdeal
-        long kmIdeal = (novoContrato.getFranquiaKm() * qtMesesVeic) + novoContrato.getKmInicial();
+        long kmIdeal = (novoContrato.getFranquiaKm() * (qtMesesVeic+1)) + novoContrato.getKmInicial();
         novoContrato.setKmIdeal(kmIdeal);
 
         // Cálculo do acumuladoMes
