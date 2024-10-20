@@ -2,6 +2,7 @@ package com.oksmart.kmcontrol.service;
 
 import com.oksmart.kmcontrol.dto.ContratoCreateDTO;
 import com.oksmart.kmcontrol.dto.ContratoDTO;
+import com.oksmart.kmcontrol.exception.ServiceException;
 import com.oksmart.kmcontrol.model.ContratoModel;
 import com.oksmart.kmcontrol.repository.ContratoRepository;
 import com.oksmart.kmcontrol.service.converter.ContratoConverter;
@@ -28,7 +29,7 @@ public class CriarContratoService {
         );
 
         if (exists) {
-            throw new IllegalArgumentException("Já existe um contrato com " +
+            throw new ServiceException("Já existe um contrato com " +
                     "a mesma placa ou número de contrato.");
         }
 
@@ -51,12 +52,10 @@ public class CriarContratoService {
 
         long totalDias = contratoCreateDTO.getDiarias() * contrato.getQtMesesVeic();
         LocalDate dataVigencia = dataRegistro.plusDays(totalDias);
-        System.out.println("Total de dias calculados: " + totalDias + " | Data de vigência inicial: " + dataVigencia);
 
         // Verificar se a dataVigencia é anterior à dataAtual
         if (dataVigencia.isBefore(dataAtual)) {
             dataVigencia = dataVigencia.plusDays(contratoCreateDTO.getDiarias());
-            System.out.println("Data de vigência foi ajustada para: " + dataVigencia);
         }
 
         contrato.setDataVigencia(dataVigencia);
@@ -65,16 +64,13 @@ public class CriarContratoService {
         int mesesParaCalculo = qtMesesCont == 0 ? 1 : (int) qtMesesCont;
         double kmMediaMensal = (double) contratoCreateDTO.getKmAtual() / mesesParaCalculo;
         contrato.setKmMediaMensal((long) kmMediaMensal);
-        System.out.println("KM médio mensal: " + kmMediaMensal);
 
         // Calcula contadorRevisao
         int contadorRevisao = contratoCreateDTO.getKmAtual() - contratoCreateDTO.getKmInicial();
         contrato.setContadorRevisao(contadorRevisao);
-        System.out.println("Contador de revisão: " + contadorRevisao);
 
         // Verifica se deve fazer revisão
         contrato.setFazerRevisao(contadorRevisao > 10000);
-        System.out.println("Necessário fazer revisão? " + contrato.isFazerRevisao());
 
         // Calcula kmIdeal
         int kmIdeal = (contratoCreateDTO.getFranquiaKm() * ((int) qtMesesCont+1)) + contratoCreateDTO.getKmInicial();

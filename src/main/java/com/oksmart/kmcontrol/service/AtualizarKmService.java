@@ -2,6 +2,7 @@ package com.oksmart.kmcontrol.service;
 
 import com.oksmart.kmcontrol.dto.AtualizarKmDTO;
 import com.oksmart.kmcontrol.dto.ContratoDTO;
+import com.oksmart.kmcontrol.exception.ServiceException;
 import com.oksmart.kmcontrol.model.ContratoModel;
 import com.oksmart.kmcontrol.repository.ContratoRepository;
 import com.oksmart.kmcontrol.service.converter.ContratoConverter;
@@ -24,12 +25,12 @@ public class AtualizarKmService {
     public ContratoDTO atualizarKm(AtualizarKmDTO atualizarKmDTO) {
         List<ContratoModel> contratos = contratoRepository.findByPlaca(atualizarKmDTO.getPlaca());
         if (contratos.isEmpty()) {
-            throw new IllegalArgumentException("Contrato não encontrado para a placa fornecida.");
+            throw new ServiceException("Contrato não encontrado para a placa fornecida.");
         }
 
         ContratoModel ultimoContrato = contratos.get(0);
         if (atualizarKmDTO.getKmAtual() <= ultimoContrato.getKmAtual()) {
-            throw new IllegalArgumentException("O Km Atual deve ser maior que: " + ultimoContrato.getKmAtual() + " KM.");
+            throw new ServiceException("O Km Atual deve ser maior que: " + ultimoContrato.getKmAtual() + " KM.");
         }
 
         ContratoModel novoContrato = new ContratoModel();
@@ -52,7 +53,7 @@ public class AtualizarKmService {
         novoContrato.setDataSubstituicao(ultimoContrato.getDataSubstituicao());
 
         if (ultimoContrato.getDataRegistro() == null) {
-            throw new IllegalArgumentException("Data de registro do último contrato não pode ser nula.");
+            throw new ServiceException("Data de registro do último contrato não pode ser nula.");
         }
 
         long qtMesesCont = ChronoUnit.MONTHS.between(ultimoContrato.getDataRegistro(), LocalDate.now());

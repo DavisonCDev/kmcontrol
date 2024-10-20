@@ -2,6 +2,7 @@ package com.oksmart.kmcontrol.service;
 
 import com.oksmart.kmcontrol.dto.ContratoDTO;
 import com.oksmart.kmcontrol.dto.SubstituirVeiculoDTO;
+import com.oksmart.kmcontrol.exception.ServiceException;
 import com.oksmart.kmcontrol.model.ContratoModel;
 import com.oksmart.kmcontrol.repository.ContratoRepository;
 import com.oksmart.kmcontrol.service.converter.ContratoConverter;
@@ -25,7 +26,7 @@ public class SubstituirVeiculoService {
         List<ContratoModel> contratos = contratoRepository.findByNumeroContrato(substituirVeiculoDTO.getNumeroContrato());
 
         if (contratos.isEmpty()) {
-            throw new IllegalArgumentException("Contrato não encontrado para o número fornecido.");
+            throw new ServiceException("Contrato não encontrado para o número fornecido.");
         }
 
         ContratoModel ultimoContrato = contratos.get(0);
