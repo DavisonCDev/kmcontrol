@@ -3,6 +3,7 @@ package com.oksmart.kmcontrol.controller;
 import com.oksmart.kmcontrol.dto.*;
 import com.oksmart.kmcontrol.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/contratos")
 public class ContratoController {
+
     @Autowired
     private CriarContratoService criarContratoService;
 
@@ -32,47 +34,75 @@ public class ContratoController {
     @Autowired
     private ListarContratosService listarContratosService;
 
-
-    //Endpoint para listar contratos.
+    // Endpoint para listar contratos
     @GetMapping
-    public List<ContratoDTO> listarContratos() {
-        return listarTodosService.listarTodos();
+    public ResponseEntity<ApiResponse<List<ContratoDTO>>> listarContratos() {
+        List<ContratoDTO> contratos = listarTodosService.listarTodos();
+        return ResponseEntity.ok(new ApiResponse<>("success", "Contratos listados com sucesso.", contratos, null));
     }
 
-    //Endpoint para criar contrato
+    // Endpoint para criar contrato
     @PostMapping
-    public ContratoDTO criarContrato(@RequestBody ContratoCreateDTO contratoCreateDTO) {
-        return criarContratoService.criarContrato(contratoCreateDTO);
+    public ResponseEntity<ApiResponse<ContratoDTO>> criarContrato(@RequestBody ContratoCreateDTO contratoCreateDTO) {
+        try {
+            ContratoDTO contratoDTO = criarContratoService.criarContrato(contratoCreateDTO);
+            return ResponseEntity.ok(new ApiResponse<>("success", "Contrato criado com sucesso.", contratoDTO, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>("error", "Erro ao criar contrato: " + e.getMessage(), null, null));
+        }
     }
 
     // Endpoint para deletar contrato
     @DeleteMapping
-    public void deletarContrato(@RequestBody ContratoDeleteDTO contratoDeleteDTO) {
-        deletarContratoService.deletarContrato(contratoDeleteDTO.getNumeroContrato());
+    public ResponseEntity<ApiResponse<Void>> deletarContrato(@RequestBody ContratoDeleteDTO contratoDeleteDTO) {
+        try {
+            deletarContratoService.deletarContrato(contratoDeleteDTO.getNumeroContrato());
+            return ResponseEntity.ok(new ApiResponse<>("success", "Contrato deletado com sucesso.", null, null));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>("error", e.getMessage(), null, null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>("error", "Erro ao deletar contrato.", null, null));
+        }
     }
 
-    //Endpoint para atualizar km
+    // Endpoint para atualizar km
     @PostMapping("/atualizar-km")
-    public ContratoDTO atualizarKm(@RequestBody AtualizarKmDTO atualizarKmDTO) {
-        return atualizarKmService.atualizarKm(atualizarKmDTO);
+    public ResponseEntity<ApiResponse<ContratoDTO>> atualizarKm(@RequestBody AtualizarKmDTO atualizarKmDTO) {
+        try {
+            ContratoDTO contratoDTO = atualizarKmService.atualizarKm(atualizarKmDTO);
+            return ResponseEntity.ok(new ApiResponse<>("success", "KM atualizado com sucesso.", contratoDTO, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>("error", "Erro ao atualizar KM: " + e.getMessage(), null, null));
+        }
     }
 
-    //Endpoint para fazer a revisão dos veículos
+    // Endpoint para fazer a revisão dos veículos
     @PostMapping("/fazer-revisao")
-    public ContratoDTO fazerRevisao(@RequestBody FazerRevisaoDTO fazerRevisaoDTO) {
-        return fazerRevisaoService.fazerRevisao(fazerRevisaoDTO);
+    public ResponseEntity<ApiResponse<ContratoDTO>> fazerRevisao(@RequestBody FazerRevisaoDTO fazerRevisaoDTO) {
+        try {
+            ContratoDTO contratoDTO = fazerRevisaoService.fazerRevisao(fazerRevisaoDTO);
+            return ResponseEntity.ok(new ApiResponse<>("success", "Revisão realizada com sucesso.", contratoDTO, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>("error", "Erro ao fazer revisão: " + e.getMessage(), null, null));
+        }
     }
 
-    //Endpoint para listar ultimos registros por numero de contrato
+    // Endpoint para listar últimos registros por número de contrato
     @GetMapping("/ultimos")
-    public List<ContratoDTO> listarUltimosContratos() {
-        return listarContratosService.listarUltimosContratos();
+    public ResponseEntity<ApiResponse<List<ContratoDTO>>> listarUltimosContratos() {
+        List<ContratoDTO> contratos = listarContratosService.listarUltimosContratos();
+        return ResponseEntity.ok(new ApiResponse<>("success", "Últimos contratos listados com sucesso.", contratos, null));
     }
 
-    //Endpoint para substituir veículos
+    // Endpoint para substituir veículos
     @PostMapping("/substituirVeiculo")
-    public ResponseEntity<ContratoDTO> substituirVeiculo(@RequestBody SubstituirVeiculoDTO substituirVeiculoDTO) {
-        ContratoDTO contratoDTO = substituirVeiculoService.substituirVeiculo(substituirVeiculoDTO);
-        return ResponseEntity.ok(contratoDTO);
+    public ResponseEntity<ApiResponse<ContratoDTO>> substituirVeiculo(@RequestBody SubstituirVeiculoDTO substituirVeiculoDTO) {
+        try {
+            ContratoDTO contratoDTO = substituirVeiculoService.substituirVeiculo(substituirVeiculoDTO);
+            return ResponseEntity.ok(new ApiResponse<>("success", "Veículo substituído com sucesso.", contratoDTO, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>("error", "Erro ao substituir veículo: " + e.getMessage(), null, null));
+        }
     }
 }
