@@ -1,5 +1,6 @@
 package com.oksmart.kmcontrol.dto;
 
+import com.oksmart.kmcontrol.model.ContratoModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
