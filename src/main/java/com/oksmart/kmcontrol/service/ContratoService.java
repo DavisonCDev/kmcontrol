@@ -5,8 +5,6 @@ import com.oksmart.kmcontrol.model.ContratoModel;
 import com.oksmart.kmcontrol.repository.ContratoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.Map;
-import java.util.HashMap;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -88,6 +86,7 @@ public class ContratoService {
 
         // Calcula kmIdeal
         int kmIdeal = (contratoCreateDTO.getFranquiaKm() * ((int) qtMesesCont+1)) + contratoCreateDTO.getKmInicial();
+        contrato.setKmIdeal(kmIdeal);
         System.out.println("KM ideal: " + kmIdeal);
 
         // Calcula acumuladoMes
@@ -104,7 +103,7 @@ public class ContratoService {
         contrato.setSaldoKm(saldoKm);
         System.out.println("Saldo KM: " + saldoKm);
 
-        // Resto do código...
+
         contrato.setDiarias(contratoCreateDTO.getDiarias());
         contrato.setFranquiaKm(contratoCreateDTO.getFranquiaKm());
         contrato.setKmAtual(contratoCreateDTO.getKmAtual());
