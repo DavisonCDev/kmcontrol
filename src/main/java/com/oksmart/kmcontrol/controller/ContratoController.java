@@ -1,11 +1,13 @@
 package com.oksmart.kmcontrol.controller;
 
 import com.oksmart.kmcontrol.dto.*;
+import com.oksmart.kmcontrol.exception.ServiceException;
 import com.oksmart.kmcontrol.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.oksmart.kmcontrol.exception.ServiceException;
 
 import java.util.List;
 
@@ -47,6 +49,8 @@ public class ContratoController {
         try {
             ContratoDTO contratoDTO = criarContratoService.criarContrato(contratoCreateDTO);
             return ResponseEntity.ok(new ApiResponse<>("success", "Contrato criado com sucesso.", contratoDTO, null));
+        } catch (ServiceException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>("error", e.getErrorMessage(), null, null));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>("error", "Erro ao criar contrato: " + e.getMessage(), null, null));
         }
@@ -58,8 +62,8 @@ public class ContratoController {
         try {
             deletarContratoService.deletarContrato(contratoDeleteDTO.getNumeroContrato());
             return ResponseEntity.ok(new ApiResponse<>("success", "Contrato deletado com sucesso.", null, null));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>("error", e.getMessage(), null, null));
+        } catch (ServiceException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>("error", e.getErrorMessage(), null, null));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ApiResponse<>("error", "Erro ao deletar contrato.", null, null));
@@ -72,6 +76,8 @@ public class ContratoController {
         try {
             ContratoDTO contratoDTO = atualizarKmService.atualizarKm(atualizarKmDTO);
             return ResponseEntity.ok(new ApiResponse<>("success", "KM atualizado com sucesso.", contratoDTO, null));
+        } catch (ServiceException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>("error", e.getErrorMessage(), null, null));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>("error", "Erro ao atualizar KM: " + e.getMessage(), null, null));
         }
@@ -83,6 +89,8 @@ public class ContratoController {
         try {
             ContratoDTO contratoDTO = fazerRevisaoService.fazerRevisao(fazerRevisaoDTO);
             return ResponseEntity.ok(new ApiResponse<>("success", "Revisão realizada com sucesso.", contratoDTO, null));
+        } catch (ServiceException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>("error", e.getErrorMessage(), null, null));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>("error", "Erro ao fazer revisão: " + e.getMessage(), null, null));
         }
@@ -101,8 +109,11 @@ public class ContratoController {
         try {
             ContratoDTO contratoDTO = substituirVeiculoService.substituirVeiculo(substituirVeiculoDTO);
             return ResponseEntity.ok(new ApiResponse<>("success", "Veículo substituído com sucesso.", contratoDTO, null));
+        } catch (ServiceException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>("error", e.getErrorMessage(), null, null));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>("error", "Erro ao substituir veículo: " + e.getMessage(), null, null));
         }
     }
 }
+
