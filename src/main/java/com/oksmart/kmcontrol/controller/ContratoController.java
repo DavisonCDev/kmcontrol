@@ -4,6 +4,7 @@ import com.oksmart.kmcontrol.dto.*;
 import com.oksmart.kmcontrol.exception.ServiceException;
 import com.oksmart.kmcontrol.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,8 +39,10 @@ public class ContratoController {
 
     // Endpoint para listar contratos
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ContratoDTO>>> listarContratos() {
-        List<ContratoDTO> contratos = listarTodosService.listarTodos();
+    public ResponseEntity<ApiResponse<Page<ContratoDTO>>> listarContratos(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<ContratoDTO> contratos = (Page<ContratoDTO>) listarTodosService.listarTodos(page, size);
         return ResponseEntity.ok(new ApiResponse<>("success", "Contratos listados com sucesso.", contratos, null));
     }
 
