@@ -3,6 +3,7 @@ package com.oksmart.kmcontrol.controller;
 import com.oksmart.kmcontrol.dto.*;
 import com.oksmart.kmcontrol.exception.ServiceException;
 import com.oksmart.kmcontrol.service.*;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -48,7 +49,7 @@ public class ContratoController {
 
     // Endpoint para criar contrato
     @PostMapping
-    public ResponseEntity<ApiResponse<ContratoDTO>> criarContrato(@RequestBody ContratoCreateDTO contratoCreateDTO) {
+    public ResponseEntity<ApiResponse<ContratoDTO>> criarContrato(@Valid @RequestBody ContratoCreateDTO contratoCreateDTO) {
         try {
             ContratoDTO contratoDTO = criarContratoService.criarContrato(contratoCreateDTO);
             return ResponseEntity.ok(new ApiResponse<>("success", "Contrato criado com sucesso.", contratoDTO, null));
@@ -61,7 +62,7 @@ public class ContratoController {
 
     // Endpoint para deletar contrato
     @DeleteMapping
-    public ResponseEntity<ApiResponse<Void>> deletarContrato(@RequestBody ContratoDeleteDTO contratoDeleteDTO) {
+    public ResponseEntity<ApiResponse<Void>> deletarContrato(@Valid @RequestBody ContratoDeleteDTO contratoDeleteDTO) {
         try {
             deletarContratoService.deletarContrato(contratoDeleteDTO.getNumeroContrato());
             return ResponseEntity.ok(new ApiResponse<>("success", "Contrato deletado com sucesso.", null, null));
@@ -75,7 +76,7 @@ public class ContratoController {
 
     // Endpoint para atualizar km
     @PostMapping("/atualizar-km")
-    public ResponseEntity<ApiResponse<ContratoDTO>> atualizarKm(@RequestBody AtualizarKmDTO atualizarKmDTO) {
+    public ResponseEntity<ApiResponse<ContratoDTO>> atualizarKm(@Valid @RequestBody AtualizarKmDTO atualizarKmDTO) {
         try {
             ContratoDTO contratoDTO = atualizarKmService.atualizarKm(atualizarKmDTO);
             return ResponseEntity.ok(new ApiResponse<>("success", "KM atualizado com sucesso.", contratoDTO, null));
@@ -88,7 +89,7 @@ public class ContratoController {
 
     // Endpoint para fazer a revisão dos veículos
     @PostMapping("/fazer-revisao")
-    public ResponseEntity<ApiResponse<ContratoDTO>> fazerRevisao(@RequestBody FazerRevisaoDTO fazerRevisaoDTO) {
+    public ResponseEntity<ApiResponse<ContratoDTO>> fazerRevisao(@Valid @RequestBody FazerRevisaoDTO fazerRevisaoDTO) {
         try {
             ContratoDTO contratoDTO = fazerRevisaoService.fazerRevisao(fazerRevisaoDTO);
             return ResponseEntity.ok(new ApiResponse<>("success", "Revisão realizada com sucesso.", contratoDTO, null));
@@ -108,7 +109,7 @@ public class ContratoController {
 
     // Endpoint para substituir veículos
     @PostMapping("/substituirVeiculo")
-    public ResponseEntity<ApiResponse<ContratoDTO>> substituirVeiculo(@RequestBody SubstituirVeiculoDTO substituirVeiculoDTO) {
+    public ResponseEntity<ApiResponse<ContratoDTO>> substituirVeiculo(@Valid @RequestBody SubstituirVeiculoDTO substituirVeiculoDTO) {
         try {
             ContratoDTO contratoDTO = substituirVeiculoService.substituirVeiculo(substituirVeiculoDTO);
             return ResponseEntity.ok(new ApiResponse<>("success", "Veículo substituído com sucesso.", contratoDTO, null));
