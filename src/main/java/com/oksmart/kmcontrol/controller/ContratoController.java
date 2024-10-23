@@ -119,5 +119,6 @@ public class ContratoController {
             return ResponseEntity.badRequest().body(new ApiResponse<>("error", "Erro ao substituir veículo: " + e.getMessage(), null, null));
         }
     }
+
 }
 
