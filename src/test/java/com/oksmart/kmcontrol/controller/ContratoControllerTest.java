@@ -1,6 +1,6 @@
 package com.oksmart.kmcontrol.controller;
 
-import com.oksmart.kmcontrol.dto.ApiResponse;
+import com.oksmart.kmcontrol.dto.ApiResponseDTO;
 import com.oksmart.kmcontrol.dto.ContratoCreateDTO;
 import com.oksmart.kmcontrol.dto.ContratoDTO;
 import com.oksmart.kmcontrol.exception.ServiceException;
@@ -38,7 +38,7 @@ public class ContratoControllerTest {
 
         when(criarContratoService.criarContrato(dto)).thenReturn(expectedResponse);
 
-        ResponseEntity<ApiResponse<ContratoDTO>> response = contratoController.criarContrato(dto);
+        ResponseEntity<ApiResponseDTO<ContratoDTO>> response = contratoController.criarContrato(dto);
 
         assertEquals(200, response.getStatusCodeValue());
         // Mais asserts conforme necessário
@@ -51,7 +51,7 @@ public class ContratoControllerTest {
 
         when(criarContratoService.criarContrato(dto)).thenThrow(new ServiceException("Erro ao criar contrato"));
 
-        ResponseEntity<ApiResponse<ContratoDTO>> response = contratoController.criarContrato(dto);
+        ResponseEntity<ApiResponseDTO<ContratoDTO>> response = contratoController.criarContrato(dto);
 
         assertEquals(400, response.getStatusCodeValue());
         // Mais asserts conforme necessário
