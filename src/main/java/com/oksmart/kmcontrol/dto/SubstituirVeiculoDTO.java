@@ -1,9 +1,7 @@
 package com.oksmart.kmcontrol.dto;
 
 import lombok.Data;
-
 import java.time.LocalDate;
-
 
 // DTO para substituição de veículo
 @Data

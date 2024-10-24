@@ -8,7 +8,6 @@ import com.oksmart.kmcontrol.repository.ContratoRepository;
 import com.oksmart.kmcontrol.service.converter.ContratoConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -30,7 +29,8 @@ public class AtualizarKmService {
 
         ContratoModel ultimoContrato = contratos.get(0);
         if (atualizarKmDTO.getKmAtual() <= ultimoContrato.getKmAtual()) {
-            throw new ServiceException("O Km Atual deve ser maior que: " + ultimoContrato.getKmAtual() + " KM.");
+            throw new ServiceException("O Km Atual deve ser maior que: "
+                    + ultimoContrato.getKmAtual() + " KM.");
         }
 
         ContratoModel novoContrato = new ContratoModel();
@@ -86,7 +86,8 @@ public class AtualizarKmService {
         novoContrato.setKmExcedido(media > ultimoContrato.getFranquiaKm());
 
         // Cálculo do contadorRevisao
-        int contadorRevisao = atualizarKmDTO.getKmAtual() - ultimoContrato.getKmAtual() + ultimoContrato.getContadorRevisao();
+        int contadorRevisao = atualizarKmDTO.getKmAtual() -
+                ultimoContrato.getKmAtual() + ultimoContrato.getContadorRevisao();
         novoContrato.setContadorRevisao(contadorRevisao);
         novoContrato.setFazerRevisao(contadorRevisao > 10000);
 
@@ -99,7 +100,8 @@ public class AtualizarKmService {
         novoContrato.setAcumuladoMes(acumuladoMes);
 
         // Cálculo do saldoKm
-        double saldoKm = (double) ultimoContrato.getValorAluguel() / ultimoContrato.getFranquiaKm() * acumuladoMes;
+        double saldoKm = (double) ultimoContrato.getValorAluguel() / ultimoContrato.getFranquiaKm()
+                * acumuladoMes;
         novoContrato.setSaldoKm(saldoKm);
 
         // Verifica se acumuladoMes é menor que 0 para definir kmExcedido

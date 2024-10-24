@@ -1,7 +1,6 @@
 package com.oksmart.kmcontrol.dto;
 
 import lombok.Data;
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 

@@ -15,14 +15,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ServiceException.class)
     public ResponseEntity<ApiResponse<Void>> handleServiceException(ServiceException e) {
-        ApiResponse<Void> response = new ApiResponse<>("error", e.getErrorMessage(), null, null);
+        ApiResponse<Void> response = new ApiResponse<>("error",
+                e.getErrorMessage(), null, null);
         return ResponseEntity.badRequest().body(response);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGenericException(Exception e) {
         logger.error("Erro não tratado: ", e); // Log da exceção
-        ApiResponse<Void> response = new ApiResponse<>("error", "Erro: " + e.getMessage(), null, null);
+        ApiResponse<Void> response = new ApiResponse<>("error",
+                "Erro: " + e.getMessage(), null, null);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 }

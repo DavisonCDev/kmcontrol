@@ -42,7 +42,8 @@ public class SubstituirVeiculoServiceTest {
         ContratoModel model = new ContratoModel();
         // Preencher o modelo conforme necessário
 
-        when(contratoRepository.findByNumeroContrato(dto.getNumeroContrato())).thenReturn(Collections.singletonList(model));
+        when(contratoRepository.findByNumeroContrato(dto.getNumeroContrato())).
+                thenReturn(Collections.singletonList(model));
         when(contratoConverter.convertToDTO(model)).thenReturn(new ContratoDTO());
 
         ContratoDTO result = substituirVeiculoService.substituirVeiculo(dto);
@@ -55,7 +56,8 @@ public class SubstituirVeiculoServiceTest {
         SubstituirVeiculoDTO dto = new SubstituirVeiculoDTO();
         dto.setNumeroContrato("1234");
 
-        when(contratoRepository.findByNumeroContrato(dto.getNumeroContrato())).thenReturn(Collections.emptyList());
+        when(contratoRepository.findByNumeroContrato(dto.getNumeroContrato())).
+                thenReturn(Collections.emptyList());
 
         assertThrows(ServiceException.class, () -> {
             substituirVeiculoService.substituirVeiculo(dto);

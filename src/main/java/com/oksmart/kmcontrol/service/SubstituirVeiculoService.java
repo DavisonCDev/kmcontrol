@@ -23,7 +23,8 @@ public class SubstituirVeiculoService {
 
     public ContratoDTO substituirVeiculo(SubstituirVeiculoDTO substituirVeiculoDTO) {
         // Busca o último contrato com o número do contrato fornecido
-        List<ContratoModel> contratos = contratoRepository.findByNumeroContrato(substituirVeiculoDTO.getNumeroContrato());
+        List<ContratoModel> contratos =
+                contratoRepository.findByNumeroContrato(substituirVeiculoDTO.getNumeroContrato());
 
         if (contratos.isEmpty()) {
             throw new ServiceException("Contrato não encontrado para o número fornecido.");
