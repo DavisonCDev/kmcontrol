@@ -9,9 +9,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
 public class ListarTodosService {
 
@@ -21,10 +18,11 @@ public class ListarTodosService {
     @Autowired
     private ContratoConverter contratoConverter;
 
-    public List<ContratoDTO> listarTodos(int page, int size) {
+    public Page<ContratoDTO> listarTodos(int page, int size) {
+        // Obtém a página de ContratoModel
         Page<ContratoModel> contratosPage = contratoRepository.findAll(PageRequest.of(page, size));
-        return contratoRepository.findAll().stream()
-                .map(contratoConverter::convertToDTO)
-                .collect(Collectors.toList());
+
+        // Converte a página de ContratoModel para uma página de ContratoDTO
+        return contratosPage.map(contratoConverter::convertToDTO);
     }
 }
