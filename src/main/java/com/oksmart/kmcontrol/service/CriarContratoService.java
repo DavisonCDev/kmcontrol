@@ -8,6 +8,7 @@ import com.oksmart.kmcontrol.repository.ContratoRepository;
 import com.oksmart.kmcontrol.service.converter.ContratoConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
@@ -15,10 +16,10 @@ import java.time.temporal.ChronoUnit;
 public class CriarContratoService {
 
     @Autowired
-    private ContratoRepository contratoRepository;
+    ContratoRepository contratoRepository;
 
     @Autowired
-    private ContratoConverter contratoConverter;
+    ContratoConverter contratoConverter;
 
     public ContratoDTO criarContrato(ContratoCreateDTO contratoCreateDTO) {
         // Verificar se já existe um contrato com a mesma placa ou número de contrato
@@ -72,8 +73,7 @@ public class CriarContratoService {
         contrato.setFazerRevisao(contadorRevisao > 10000);
 
         // Calcula kmIdeal
-        int kmIdeal = (contratoCreateDTO.getFranquiaKm() * ((int) qtMesesCont+1))
-                + contratoCreateDTO.getKmInicial();
+        int kmIdeal = (contratoCreateDTO.getFranquiaKm() * ((int) qtMesesCont+1)) + contratoCreateDTO.getKmInicial();
         contrato.setKmIdeal(kmIdeal);
 
         // Calcula acumuladoMes
@@ -84,8 +84,7 @@ public class CriarContratoService {
         contrato.setKmExcedido(acumuladoMes < 0);
 
         // Calcula saldoKm
-        double saldoKm = (contratoCreateDTO.getValorAluguel() / contratoCreateDTO.getFranquiaKm())
-                * acumuladoMes;
+        double saldoKm = (contratoCreateDTO.getValorAluguel() / contratoCreateDTO.getFranquiaKm()) * acumuladoMes;
         contrato.setSaldoKm(saldoKm);
         contrato.setDiarias(contratoCreateDTO.getDiarias());
         contrato.setFranquiaKm(contratoCreateDTO.getFranquiaKm());

@@ -12,7 +12,7 @@ import java.util.List;
 public class DeletarContratoService {
 
     @Autowired
-    private ContratoRepository contratoRepository;
+    ContratoRepository contratoRepository;
 
     public void deletarContrato(String numeroContrato) {
         List<ContratoModel> contratos = contratoRepository.findByNumeroContrato(numeroContrato);
@@ -22,3 +22,4 @@ public class DeletarContratoService {
         contratoRepository.deleteAll(contratos);
     }
 }
+

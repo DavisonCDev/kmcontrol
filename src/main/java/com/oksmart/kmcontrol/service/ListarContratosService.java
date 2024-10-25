@@ -14,10 +14,10 @@ import java.util.stream.Collectors;
 public class ListarContratosService {
 
     @Autowired
-    private ContratoRepository contratoRepository;
+    ContratoRepository contratoRepository;
 
     @Autowired
-    private ContratoConverter contratoConverter;
+    ContratoConverter contratoConverter;
 
     public List<ContratoDTO> listarUltimosContratos() {
         List<ContratoModel> ultimosContratos = contratoRepository.findUltimosContratos();

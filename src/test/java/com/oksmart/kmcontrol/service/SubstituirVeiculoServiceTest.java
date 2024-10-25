@@ -8,59 +8,64 @@ import com.oksmart.kmcontrol.repository.ContratoRepository;
 import com.oksmart.kmcontrol.service.converter.ContratoConverter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
+import java.time.LocalDate;
 import java.util.Collections;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-public class SubstituirVeiculoServiceTest {
+class SubstituirVeiculoServiceTest {
 
-    @InjectMocks
     private SubstituirVeiculoService substituirVeiculoService;
-
-    @Mock
     private ContratoRepository contratoRepository;
-
-    @Mock
     private ContratoConverter contratoConverter;
 
     @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
+    void setUp() {
+        contratoRepository = mock(ContratoRepository.class);
+        contratoConverter = mock(ContratoConverter.class);
+        substituirVeiculoService = new SubstituirVeiculoService();
+        substituirVeiculoService.contratoRepository = contratoRepository;
+        substituirVeiculoService.contratoConverter = contratoConverter;
     }
 
     @Test
-    public void testSubstituirVeiculo_Success() {
+    void testSubstituirVeiculo_Success() {
         SubstituirVeiculoDTO dto = new SubstituirVeiculoDTO();
-        dto.setNumeroContrato("1234");
+        dto.setNumeroContrato("123456");
+        dto.setKmInicial(10000);
+        dto.setMarca("Marca");
+        dto.setModelo("Modelo");
+        dto.setPlaca("ABC1234");
+        dto.setDataSubstituicao(LocalDate.now());
 
-        ContratoModel model = new ContratoModel();
-        // Preencher o modelo conforme necessário
+        ContratoModel ultimoContrato = new ContratoModel();
+        ultimoContrato.setCondutorPrincipal("Condutor Principal");
+        ultimoContrato.setCondutorResponsavel("Condutor Responsável");
+        // Adicione outros dados conforme necessário
 
-        when(contratoRepository.findByNumeroContrato(dto.getNumeroContrato())).
-                thenReturn(Collections.singletonList(model));
-        when(contratoConverter.convertToDTO(model)).thenReturn(new ContratoDTO());
+        when(contratoRepository.findByNumeroContrato(dto.getNumeroContrato())).thenReturn(Collections.singletonList(ultimoContrato));
+        when(contratoRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
+
+        ContratoDTO contratoDTO = new ContratoDTO();
+        when(contratoConverter.convertToDTO(any())).thenReturn(contratoDTO);
 
         ContratoDTO result = substituirVeiculoService.substituirVeiculo(dto);
+
         assertNotNull(result);
-        // Mais asserts conforme necessário
+        verify(contratoRepository).save(any(ContratoModel.class));
     }
 
     @Test
-    public void testSubstituirVeiculo_ServiceException() {
+    void testSubstituirVeiculo_ContratoNotFound() {
         SubstituirVeiculoDTO dto = new SubstituirVeiculoDTO();
-        dto.setNumeroContrato("1234");
+        dto.setNumeroContrato("XYZ9999");
 
-        when(contratoRepository.findByNumeroContrato(dto.getNumeroContrato())).
-                thenReturn(Collections.emptyList());
+        when(contratoRepository.findByNumeroContrato(dto.getNumeroContrato())).thenReturn(Collections.emptyList());
 
-        assertThrows(ServiceException.class, () -> {
-            substituirVeiculoService.substituirVeiculo(dto);
-        });
+        Exception exception = assertThrows(ServiceException.class, () -> substituirVeiculoService.substituirVeiculo(dto));
+        assertEquals("Contrato não encontrado para o número fornecido.", exception.getMessage());
     }
 }

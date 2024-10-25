@@ -16,15 +16,14 @@ import java.util.List;
 public class SubstituirVeiculoService {
 
     @Autowired
-    private ContratoRepository contratoRepository;
+    ContratoRepository contratoRepository;
 
     @Autowired
-    private ContratoConverter contratoConverter;
+    ContratoConverter contratoConverter;
 
     public ContratoDTO substituirVeiculo(SubstituirVeiculoDTO substituirVeiculoDTO) {
         // Busca o último contrato com o número do contrato fornecido
-        List<ContratoModel> contratos =
-                contratoRepository.findByNumeroContrato(substituirVeiculoDTO.getNumeroContrato());
+        List<ContratoModel> contratos = contratoRepository.findByNumeroContrato(substituirVeiculoDTO.getNumeroContrato());
 
         if (contratos.isEmpty()) {
             throw new ServiceException("Contrato não encontrado para o número fornecido.");

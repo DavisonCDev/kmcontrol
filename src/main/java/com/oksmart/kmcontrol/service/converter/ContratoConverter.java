@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ContratoConverter {
-
     // Método para conversão de ContratoModel para ContratoDTO
     public ContratoDTO convertToDTO(ContratoModel contrato) {
         return new ContratoDTO(

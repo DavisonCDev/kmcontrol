@@ -16,10 +16,10 @@ import java.util.List;
 public class FazerRevisaoService {
 
     @Autowired
-    private ContratoRepository contratoRepository;
+    ContratoRepository contratoRepository;
 
     @Autowired
-    private ContratoConverter contratoConverter;
+    ContratoConverter contratoConverter;
 
     public ContratoDTO fazerRevisao(FazerRevisaoDTO fazerRevisaoDTO) {
         List<ContratoModel> contratos = contratoRepository.findByPlaca(fazerRevisaoDTO.getPlaca());
